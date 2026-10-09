@@ -1,0 +1,29 @@
+# Render Blueprint: one web service with a persistent disk for LegacyWiki's caches.
+# Render → New → Blueprint → pick this repo. You'll be asked for ANTHROPIC_API_KEY.
+services:
+  - type: web
+    name: legacywiki
+    runtime: node
+    plan: 0.5c-512mb # cheapest paid plan; persistent disks need a paid plan
+    region: oregon
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    disk:
+      name: legacywiki-cache
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false # entered in the Render dashboard, never stored in the repo
+      - key: LEGACYWIKI_CACHE_DIR
+        value: /data
+      - key: LEGACYWIKI_STORY_MODEL
+        value: claude-sonnet-5-5
+      - key: LEGACYWIKI_AI_DAILY_CALL_LIMIT
+        value: "50"
+      - key: LEGACYWIKI_AI_MONTHLY_CALL_LIMIT
+        value: "300"
+      - key: LEGACYWIKI_AI_MONTHLY_TOKEN_LIMIT
+        value: "1500000"
