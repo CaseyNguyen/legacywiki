@@ -1,7 +1,7 @@
 import { after } from 'next/server';
 import { json } from '@/lib/http';
 import { getLeagueModel } from '@/lib/league';
-import { requestStory } from '@/lib/story';
+import { publicStory, requestStory } from '@/lib/story';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +15,8 @@ async function handle(leagueId: string, teamId: string, retry: boolean) {
     const { response, work } = await requestStory(model, decodeURIComponent(teamId), { retry });
     // Generation runs after the response is sent, so this endpoint stays fast.
     if (work) after(() => work);
-    return json(response, t0, { status: response.status === 'pending' ? 202 : 200 });
+    if (response.status === 'pending') return json(response, t0, { status: 202 });
+    return json({ status: 'ready', canRetry: response.canRetry, story: publicStory(response.story) }, t0);
   } catch (err) {
     return json({ status: 'error', error: (err as Error).message }, t0, { status: 404 });
   }

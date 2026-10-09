@@ -40,6 +40,25 @@ export type StoryResponse =
   | { status: 'ready'; story: StoryRecord; canRetry: boolean }
   | { status: 'pending' };
 
+/** What the browser receives: no model name, error details or reason codes. */
+export interface PublicStory {
+  franchiseId: string;
+  kind: 'full' | 'summary';
+  writtenAt: number;
+  article: StoryArticle;
+  error?: 'unavailable';
+}
+
+export function publicStory(record: StoryRecord): PublicStory {
+  return {
+    franchiseId: record.franchiseId,
+    kind: record.kind === 'ai' ? 'full' : 'summary',
+    writtenAt: record.writtenAt,
+    article: record.article,
+    ...(record.error ? { error: 'unavailable' as const } : {}),
+  };
+}
+
 const NS = 'stories';
 const STORY_MODEL = process.env.LEGACYWIKI_STORY_MODEL || 'claude-sonnet-5-5';
 const limit = createLimiter(4);

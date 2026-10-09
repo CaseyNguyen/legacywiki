@@ -7,22 +7,17 @@ import { StoryLede, StorySections, excerpt } from '../WikiText';
 import { Avatar } from '../bits';
 
 interface StoryRecord {
-  kind: 'ai' | 'summary';
-  model: string | null;
+  kind: 'full' | 'summary';
   writtenAt: number;
   article: StoryArticleData;
+  /** Present when writing the full article failed and can be retried. */
   error?: string;
-  reason?: 'no-key' | 'budget' | 'paused';
 }
 
 type StoryResponse = { status: 'ready'; story: StoryRecord; canRetry: boolean } | { status: 'pending' } | { status: 'error'; error: string };
 
 const storyUrl = (leagueId: string, teamId: string) =>
   `/api/league/${encodeURIComponent(leagueId)}/stories/${encodeURIComponent(teamId)}`;
-
-function dateOf(ms: number) {
-  return new Date(ms).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
 
 /** The team article's prose: shows the stored story or waits for the one-time write-up. */
 export function StoryBlock({
@@ -93,7 +88,7 @@ export function StoryBlock({
     return (
       <div aria-live="polite" className="lede-block">
         <p className="lede muted">
-          <i>{gaveUp ? `The article for ${teamName} is taking longer than expected. Reload the page to check again.` : `The article for ${teamName} is being written…`}</i>
+          <i>{gaveUp ? 'This article is taking longer than usual. Reload the page to check again.' : 'This article is being written…'}</i>
         </p>
         <div aria-hidden="true" style={{ display: 'grid', gap: 8, maxWidth: '46rem', margin: '10px 0 18px' }}>
           {[96, 88, 92, 64].map((w) => (
@@ -107,25 +102,15 @@ export function StoryBlock({
   return (
     <>
       <div className="lede-block">
-      <StoryLede article={story.article} links={links} teamName={teamName} />
-      <p className="small muted" style={{ marginTop: -4 }}>
-        {story.kind === 'ai' ? (
-          <>Written by Claude from league data on {dateOf(story.writtenAt)}.</>
-        ) : story.error ? (
-          <>
-            Claude couldn’t write this article because {story.error}. This summary is built from league statistics.{' '}
-            {canRetry ? (
-              <button type="button" className="btn" style={{ padding: '2px 8px', fontSize: '0.8rem' }} onClick={retry} disabled={retrying}>
-                {retrying ? 'Trying again…' : 'Try again'}
-              </button>
-            ) : null}
-          </>
-        ) : story.reason === 'budget' || story.reason === 'paused' ? (
-          <>Summary built from league statistics. The full article will be written once AI writing is available again.</>
-        ) : (
-          <>Summary built from league statistics.</>
-        )}
-      </p>
+        <StoryLede article={story.article} links={links} teamName={teamName} />
+        {story.error && canRetry ? (
+          <p className="small muted" style={{ marginTop: -4 }}>
+            The full article couldn’t be written this time.{' '}
+            <button type="button" className="btn" style={{ padding: '2px 8px', fontSize: '0.8rem' }} onClick={retry} disabled={retrying}>
+              {retrying ? 'Trying again…' : 'Try again'}
+            </button>
+          </p>
+        ) : null}
       </div>
       <StorySections article={story.article} links={links} />
     </>
@@ -223,7 +208,7 @@ export function FranchiseCards({ leagueId, cards, aiEnabled }: { leagueId: strin
             </span>
           </div>
           <p className="card__text">
-            {excerpts[c.id] ? excerpts[c.id] : <span className="pending">{aiEnabled ? 'Writing this team’s article…' : 'No article yet.'}</span>}
+            {excerpts[c.id] ? excerpts[c.id] : <span className="pending">{aiEnabled ? 'This team’s article is being written…' : 'No article yet.'}</span>}
           </p>
         </article>
       ))}

@@ -1,12 +1,13 @@
 import { after } from 'next/server';
 import { json } from '@/lib/http';
 import { buildState, clearBuildError, getLeagueModel, startBuild } from '@/lib/league';
-import { parseLeagueInput, sourceFor } from '@/lib/sleeper';
+import { sourceFor } from '@/lib/sleeper';
+import { LEAGUE_INPUT_MESSAGES, parseLeagueInput } from '@/lib/league-input';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * POST { input: "<league link or id>" }
+ * POST { input: "<league id or link>" }
  * Validates the league with one Sleeper call, then starts building it in the
  * background. Returns immediately; poll /api/league/:id/status for progress.
  */
@@ -18,14 +19,11 @@ export async function POST(req: Request) {
   } catch {
     /* empty body */
   }
-  const leagueId = parseLeagueInput(body.leagueId ?? body.input ?? '');
-  if (!leagueId) {
-    return json(
-      { status: 'error', error: 'Paste a Sleeper league link (it contains /leagues/ and a long number) or the league ID.' },
-      t0,
-      { status: 400 },
-    );
+  const parsed = parseLeagueInput(body.leagueId ?? body.input ?? '');
+  if (!parsed.ok) {
+    return json({ status: 'error', problem: parsed.problem, error: LEAGUE_INPUT_MESSAGES[parsed.problem] }, t0, { status: 400 });
   }
+  const leagueId = parsed.id;
 
   const existing = await getLeagueModel(leagueId);
   if (existing) return json({ status: 'ready', leagueId, name: existing.name }, t0);
@@ -36,9 +34,14 @@ export async function POST(req: Request) {
     try {
       const league = await sourceFor(leagueId).league(leagueId);
       if (!league) {
-        return json({ status: 'error', error: `Sleeper has no league with ID ${leagueId}. Check the link and try again.` }, t0, {
-          status: 404,
-        });
+        return json(
+          {
+            status: 'error',
+            error: `Sleeper has no league with ID ${leagueId}. Make sure you copied the League ID (from the league’s settings), not your user ID or a draft ID.`,
+          },
+          t0,
+          { status: 404 },
+        );
       }
       name = league.name;
     } catch (err) {

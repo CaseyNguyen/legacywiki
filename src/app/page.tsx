@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { BrandMark } from '@/components/bits';
 import { Landing } from '@/components/client/Landing';
 import { ThemeToggle } from '@/components/client/Shell';
-import { aiEnabled } from '@/lib/story';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +21,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           </div>
         </div>
       </header>
-      <Landing forceNew={sp.new === '1'} aiEnabled={aiEnabled()} />
+      <Landing forceNew={sp.new === '1'} />
     </>
   );
 }

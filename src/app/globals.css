@@ -1428,18 +1428,167 @@ button {
   gap: 10px;
 }
 .portal form {
+  display: grid;
+  gap: 6px;
+}
+.portal__label {
+  font-weight: 700;
+  font-size: 1.02rem;
+}
+.portal__hint {
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+.portal__row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.portal .field {
+.field-wrap {
+  position: relative;
   flex: 1 1 18rem;
+  min-width: 0;
+  display: flex;
+}
+.portal .field {
   font-size: 1rem;
   padding: 10px 12px;
+  font-variant-numeric: tabular-nums;
+}
+.portal .field--paste {
+  padding-right: 78px;
+}
+.portal .field[aria-invalid='true'] {
+  border-color: var(--loss);
+}
+.field-paste {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--rule-2);
+  background: var(--panel-2);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-family: var(--font-score);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.field-paste:hover {
+  background: var(--rule-3);
 }
 .portal .btn {
   padding: 10px 16px;
   font-size: 0.98rem;
+}
+.portal__status {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 0.88rem;
+  overflow-wrap: anywhere;
+}
+.portal__status.is-ok {
+  color: var(--win);
+  font-variant-numeric: tabular-nums;
+}
+.portal__status.is-bad {
+  color: var(--loss);
+}
+.portal__status.is-muted {
+  color: var(--ink-2);
+}
+.inline-icon {
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.17em;
+  flex: none;
+}
+.findid {
+  border-top: 1px solid var(--rule-2);
+  padding-top: 12px;
+}
+.findid h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0 0 10px;
+}
+.findid__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 16px 28px;
+}
+.findid__col {
+  min-width: 0;
+  font-size: 0.92rem;
+}
+.findid__col h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.findid__col p {
+  margin: 0 0 8px;
+}
+.findid__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: step;
+  display: grid;
+  gap: 8px;
+}
+.findid__steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 1.65rem minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  line-height: 1.45;
+}
+.findid__steps li::before {
+  content: counter(step);
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  background: var(--masthead);
+  color: var(--masthead-ink);
+  font-family: var(--font-score);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: grid;
+  place-items: center;
+  margin-top: -0.1rem;
+}
+.urlbar {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  background: var(--paper);
+  color: var(--ink-2);
+  border: 1px solid var(--rule-2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin: 0 0 8px;
+  overflow-x: auto;
+}
+.urlbar mark {
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--turf) 32%, transparent);
+  color: var(--ink);
+  font-weight: 700;
+  border-radius: 3px;
+  padding: 1px 2px;
+}
+.findid__note {
+  margin: 12px 0 0;
+  font-size: 0.84rem;
+  color: var(--ink-2);
 }
 .portal__help {
   font-size: 0.84rem;
@@ -1580,6 +1729,22 @@ button {
 @media (max-width: 760px) {
   :root {
     --masthead-h: 50px;
+  }
+  .landing {
+    padding-top: 22px;
+  }
+  .landing__title {
+    font-size: 1.85rem;
+  }
+  .landing__lede {
+    font-size: 0.98rem;
+    margin-bottom: 16px;
+  }
+  .portal {
+    padding: 14px;
+  }
+  .portal__row .btn {
+    flex: 1 1 100%;
   }
   body {
     font-size: 15px;

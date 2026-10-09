@@ -28,7 +28,7 @@ import { slug } from '@/components/WikiText';
 import { getLeagueModel } from '@/lib/league';
 import { RESULT_LABEL, ordinal, percent, pts, recordText, seasonSpan, winPct } from '@/lib/format';
 import { routes } from '@/lib/routes';
-import { peekStory } from '@/lib/story';
+import { peekStory, publicStory } from '@/lib/story';
 import { leagueAverages, teamById, teamView } from '@/lib/views';
 
 export const dynamic = 'force-dynamic';
@@ -165,7 +165,7 @@ export default async function TeamPage({ params }: Props) {
         leagueId={leagueId}
         teamId={f.id}
         teamName={f.name}
-        initial={story}
+        initial={story ? publicStory(story) : null}
         initialCanRetry={Boolean(story?.error)}
         links={links}
       />
